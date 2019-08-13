@@ -63,7 +63,7 @@ abstract class HeapChannelBuffer(protected val array: Array[Byte])
     Some(index match {
       case 0 =>
         length match {
-          case array.length =>
+          case x if x == this.array.length =>
             duplicate
           case _ =>
             TruncatedChannelBuffer(this, length)

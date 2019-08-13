@@ -54,7 +54,7 @@ case class TruncatedChannelBuffer(
                         dst: ChannelBuffer): Unit =
     checkIndex(index, length) match {
       case None      => buffer.getBytes(index, dstIndex, length, dst)
-      case Some(msg) => _
+      case Some(msg) => println(msg)
     }
 
   override def getBytes(index: Int,
@@ -63,13 +63,13 @@ case class TruncatedChannelBuffer(
                         dst: Array[Byte]): Unit =
     checkIndex(index, length) match {
       case None      => buffer.getBytes(index, dstIndex, length, dst)
-      case Some(msg) => _
+      case Some(msg) => println(msg)
     }
 
   override def getBytes(index: Int, dst: ByteBuffer): Unit =
     checkIndex(index, dst.remaining()) match {
       case None      => buffer.getBytes(index, dst)
-      case Some(msg) => _
+      case Some(msg) => println(msg)
     }
 
   override def slice(index: Int, length: Int): Option[ChannelBuffer] =
@@ -88,31 +88,31 @@ case class TruncatedChannelBuffer(
   override def setByte(index: Int, value: Byte): Unit =
     checkIndex(index) match {
       case None      => buffer.setByte(index, value)
-      case Some(msg) => _
+      case Some(msg) => println(msg)
     }
 
   override def setShort(index: Int, value: Short): Unit =
     checkIndex(index, 2) match {
       case None      => buffer.setShort(index, value)
-      case Some(msg) => _
+      case Some(msg) => println(msg)
     }
 
   override def setMedium(index: Int, value: Int): Unit =
     checkIndex(index, 3) match {
       case None      => buffer.setMedium(index, value)
-      case Some(msg) => _
+      case Some(msg) => println(msg)
     }
 
   override def setInt(index: Int, value: Int): Unit =
     checkIndex(index, 4) match {
       case None      => buffer.setInt(index, value)
-      case Some(msg) => _
+      case Some(msg) => println(msg)
     }
 
   override def setLong(index: Int, value: Long): Unit =
     checkIndex(index, 8) match {
       case None      => buffer.setLong(index, value)
-      case Some(msg) => _
+      case Some(msg) => println(msg)
     }
 
   override def setBytes(index: Int,
@@ -121,7 +121,7 @@ case class TruncatedChannelBuffer(
                         src: ChannelBuffer): Unit =
     checkIndex(index, length) match {
       case None      => buffer.setBytes(index, srcIndex, length, src)
-      case Some(msg) => _
+      case Some(msg) => println(msg)
     }
 
   override def setBytes(index: Int,
@@ -130,19 +130,19 @@ case class TruncatedChannelBuffer(
                         src: Array[Byte]): Unit =
     checkIndex(index, length) match {
       case None      => buffer.setBytes(index, srcIndex, length, src)
-      case Some(msg) => _
+      case Some(msg) => println(msg)
     }
 
   override def setBytes(index: Int, src: ByteBuffer): Unit =
     checkIndex(index, src.remaining()) match {
       case None      => buffer.setBytes(index, src)
-      case Some(msg) => _
+      case Some(msg) => println(msg)
     }
 
   override def toByteBuffer(index: Int, length: Int): ByteBuffer =
     checkIndex(index, length) match {
       case None      => buffer.toByteBuffer(index, length)
-      case Some(msg) => _
+      case Some(msg) => ByteBuffer.allocate(0)
     }
 
   private[this] def checkIndex(index: Int): Option[String] = {

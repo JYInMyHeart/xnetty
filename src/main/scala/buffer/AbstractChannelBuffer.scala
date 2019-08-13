@@ -3,7 +3,7 @@ package buffer
 import java.nio.ByteBuffer
 
 abstract class AbstractChannelBuffer extends ChannelBuffer {
-  override private[this] lazy val hashCode: Int = hashCode()
+  val hashCodeValue: Int = hashCode()
   private[this] var realWriterIndex: Int = _
   private[this] var realReaderIndex: Int = _
   private[this] var markedReaderIndex: Int = _
@@ -59,8 +59,7 @@ abstract class AbstractChannelBuffer extends ChannelBuffer {
     realReaderIndex match {
       case 0 =>
       case _ =>
-        this =
-          setBytes(0, realReaderIndex, realWriterIndex - realReaderIndex, this)
+        setBytes(0, realReaderIndex, realWriterIndex - realReaderIndex, this)
         realWriterIndex -= realReaderIndex
         markedReaderIndex = math.max(markedReaderIndex - realReaderIndex, 0)
         markedWriterIndex = math.max(markedWriterIndex - realReaderIndex, 0)
@@ -198,6 +197,8 @@ abstract class AbstractChannelBuffer extends ChannelBuffer {
     }
 
   override def hashCode(): Int = {
+    if (hashCodeValue != 0)
+      return hashCodeValue
     ChannelBuffers.hashCode(this)
   }
 

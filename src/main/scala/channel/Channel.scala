@@ -1,13 +1,38 @@
 package channel
 
+import java.net.SocketAddress
 import java.util.UUID
 
 trait Channel {
-  val OP_NONE = 0
-  val OP_READ = 1
-  val OP_WRITE = 4
-  val OP_READ_WRITE = OP_READ | OP_WRITE
+  val OP_NONE: Int = 0
+  val OP_READ: Int = 1
+  val OP_WRITE: Int = 4
+  val OP_READ_WRITE: Int = OP_READ | OP_WRITE
 
   def getId(): UUID
+  def getFactory: ChannelFactory
+  def getParent: Channel
+  def getConfig: ChannelConfig
+  def getPipeline: ChannelPipeline
 
+  def isOpen: Boolean
+  def isBound: Boolean
+  def isConnected: Boolean
+
+  def getLocalAddress: SocketAddress
+  def getRemoteAddress: SocketAddress
+
+  def write(message: => String): ChannelFuture
+  def write(message: => String, remoteAddress: SocketAddress): ChannelFuture
+
+  def bind(localAddress: SocketAddress): ChannelFuture
+  def connect(remoteAddress: SocketAddress): ChannelFuture
+  def disconnect(): ChannelFuture
+  def close(): ChannelFuture
+
+  def getInterestOps: Int
+  def isReadable: Boolean
+  def isWritable: Boolean
+  def setInterestOps(interestOps: Int): ChannelFuture
+  def setReadable(readable: Boolean): ChannelFuture
 }

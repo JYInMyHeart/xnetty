@@ -108,7 +108,7 @@ object ChannelBuffers {
     for (_ <- byteCount until 0 by -1) {
       val va = bufferA.getByte(aIndex)
       val vb = bufferB.getByte(bIndex)
-      compareAfter(compareOption(va, vb), 1) match {
+      compareAfter(compareOptionByte(va, vb), 1) match {
         case Some(value) => return value
         case None        =>
       }
@@ -116,7 +116,10 @@ object ChannelBuffers {
     aLen - bLen
   }
 
-  private def compareOption[A <: Comparable[A]](o1: Option[A],
-                                                o2: Option[A]): Option[Int] =
-    for (v1 <- o1; v2 <- o2) yield v1.compareTo(v2)
+  private def compareOption(o1: Option[Long], o2: Option[Long]): Option[Int] =
+    for (v1 <- o1; v2 <- o2) yield if (v1 > v2) 1 else if (v1 < v2) -1 else 0
+
+  private def compareOptionByte(o1: Option[Byte],
+                                o2: Option[Byte]): Option[Int] =
+    for (v1 <- o1; v2 <- o2) yield if (v1 > v2) 1 else if (v1 < v2) -1 else 0
 }
