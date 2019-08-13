@@ -25,7 +25,10 @@ abstract class AbstractChannelBuffer extends ChannelBuffer {
   }
 
   override def setIndex(readerIndex: Int, writerIndex: Int): Unit = {
-    if (readerIndex < 0 || readerIndex > realWriterIndex || writerIndex < realReaderIndex || writerIndex > capacity)
+    if (readerIndex < 0
+        || readerIndex > realWriterIndex
+        || writerIndex < realReaderIndex
+        || writerIndex > capacity)
       throw new IndexOutOfBoundsException
     realWriterIndex = writerIndex
     realReaderIndex = readerIndex
@@ -162,14 +165,26 @@ abstract class AbstractChannelBuffer extends ChannelBuffer {
   }
   override def writeBytes(srcIndex: Int,
                           length: Int,
-                          src: ChannelBuffer): Unit = ???
+                          src: ChannelBuffer): Unit = {
+    setBytes(realWriterIndex, srcIndex, length, src)
+    realWriterIndex += length
+  }
 
-  override def writeBytes(src: Array[Byte]): Unit = ???
+  override def writeBytes(src: Array[Byte]): Unit =
+    writeBytes(0, src.length, src)
 
-  override def writeBytes(srcIndex: Int, length: Int, src: Array[Byte]): Unit =
-    ???
+  override def writeBytes(srcIndex: Int,
+                          length: Int,
+                          src: Array[Byte]): Unit = {
+    setBytes(realWriterIndex, srcIndex, length, src)
+    realWriterIndex += length
+  }
 
-  override def writeBytes(src: ByteBuffer): Unit = ???
+  override def writeBytes(src: ByteBuffer): Unit = {
+    val length = src.remaining()
+    setBytes(realReaderIndex, src)
+    realWriterIndex += length
+  }
 
   override def compareTo(o: ChannelBuffer): Int =
     ChannelBuffers.compare(this, o)

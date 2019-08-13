@@ -1,0 +1,17 @@
+# Project exclude paths
+/project/target/
+/target/
+.gitignore
+.idea/$PRODUCT_WORKSPACE_FILE$
+.idea/.gitignore
+.idea/codeStyles/
+.idea/libraries/
+.idea/misc.xml
+.idea/modules.xml
+.idea/modules/
+.idea/sbt.xml
+.idea/scala_compiler.xml
+project/build.properties
+
+
+!/.gitignore

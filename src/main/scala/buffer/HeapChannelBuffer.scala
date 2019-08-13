@@ -1,7 +1,7 @@
 package buffer
 import java.nio.ByteBuffer
 
-abstract class HeapChannelBUffer(protected val array: Array[Byte])
+abstract class HeapChannelBuffer(protected val array: Array[Byte])
     extends AbstractChannelBuffer {
   def this(length: Int) = {
     this(Array.ofDim(length))
@@ -13,14 +13,14 @@ abstract class HeapChannelBUffer(protected val array: Array[Byte])
 
   override def capacity: Int = array.length
 
-  override def getByte(index: Int): Byte = array(index)
+  override def getByte(index: Int): Option[Byte] = Some(array(index))
 
   override def getBytes(index: Int,
                         dstIndex: Int,
                         length: Int,
                         dst: ChannelBuffer): Unit = {
     dst match {
-      case buffer: HeapChannelBUffer =>
+      case buffer: HeapChannelBuffer =>
         getBytes(index, dstIndex, length, buffer.array)
       case _ =>
         dst.setBytes(dstIndex, index, length, array)
@@ -44,7 +44,7 @@ abstract class HeapChannelBUffer(protected val array: Array[Byte])
                         length: Int,
                         src: ChannelBuffer): Unit =
     src match {
-      case buffer: HeapChannelBUffer =>
+      case buffer: HeapChannelBuffer =>
         setBytes(index, srcIndex, length, buffer.array)
       case _ =>
         src.getBytes(srcIndex, index, length, array)
@@ -59,8 +59,8 @@ abstract class HeapChannelBUffer(protected val array: Array[Byte])
   override def setBytes(index: Int, src: ByteBuffer): Unit =
     src.get(array, index, src.remaining())
 
-  override def slice(index: Int, length: Int): ChannelBuffer = {
-    index match {
+  override def slice(index: Int, length: Int): Option[ChannelBuffer] = {
+    Some(index match {
       case 0 =>
         length match {
           case array.length =>
@@ -69,11 +69,11 @@ abstract class HeapChannelBUffer(protected val array: Array[Byte])
             TruncatedChannelBuffer(this, length)
         }
       case _ =>
-        SliceChannelBuffer(this, index, length)
-    }
+        SlicedChannelBuffer(this, index, length)
+    })
   }
 
-  def toByteBuffer(index: Int, length: Int) =
+  override def toByteBuffer(index: Int, length: Int): ByteBuffer =
     ByteBuffer.wrap(array, index, length)
 
 }

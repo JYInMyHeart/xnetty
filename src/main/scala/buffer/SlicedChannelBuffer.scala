@@ -1,14 +1,14 @@
 package buffer
 import java.nio.{ByteBuffer, ByteOrder}
 
-case class TruncatedChannelBuffer(
-    buffer: ChannelBuffer,
-    length: Int
-) extends AbstractChannelBuffer
+case class SlicedChannelBuffer(buffer: ChannelBuffer,
+                               adjustment: Int,
+                               length: Int)
+    extends AbstractChannelBuffer
     with WrappedChannelBuffer {
 
-  def this(buffer: ChannelBuffer, length: Int) {
-    this(buffer, length)
+  def this(buffer: ChannelBuffer, index: Int, length: Int) {
+    this(buffer, index, length)
     writeIndex(length)
   }
 
@@ -26,25 +26,25 @@ case class TruncatedChannelBuffer(
 
   override def getShort(index: Int): Option[Short] =
     checkIndex(index, 2) match {
-      case None      => buffer.getShort(index)
+      case None      => buffer.getShort(index + adjustment)
       case Some(msg) => None
     }
 
   override def getMedium(index: Int): Option[Int] =
     checkIndex(index, 3) match {
-      case None      => buffer.getMedium(index)
+      case None      => buffer.getMedium(index + adjustment)
       case Some(msg) => None
     }
 
   override def getInt(index: Int): Option[Int] =
     checkIndex(index, 4) match {
-      case None      => buffer.getInt(index)
+      case None      => buffer.getInt(index + adjustment)
       case Some(msg) => None
     }
 
   override def getLong(index: Int): Option[Long] =
     checkIndex(index, 8) match {
-      case None      => buffer.getLong(index)
+      case None      => buffer.getLong(index + adjustment)
       case Some(msg) => None
     }
 
@@ -53,7 +53,7 @@ case class TruncatedChannelBuffer(
                         length: Int,
                         dst: ChannelBuffer): Unit =
     checkIndex(index, length) match {
-      case None      => buffer.getBytes(index, dstIndex, length, dst)
+      case None      => buffer.getBytes(index + adjustment, dstIndex, length, dst)
       case Some(msg) => _
     }
 
@@ -62,56 +62,56 @@ case class TruncatedChannelBuffer(
                         length: Int,
                         dst: Array[Byte]): Unit =
     checkIndex(index, length) match {
-      case None      => buffer.getBytes(index, dstIndex, length, dst)
+      case None      => buffer.getBytes(index + adjustment, dstIndex, length, dst)
       case Some(msg) => _
     }
 
   override def getBytes(index: Int, dst: ByteBuffer): Unit =
     checkIndex(index, dst.remaining()) match {
-      case None      => buffer.getBytes(index, dst)
+      case None      => buffer.getBytes(index + adjustment, dst)
       case Some(msg) => _
     }
 
   override def slice(index: Int, length: Int): Option[ChannelBuffer] =
     checkIndex(index, 8) match {
-      case None      => buffer.slice(index, length)
+      case None      => buffer.slice(index + adjustment, length)
       case Some(msg) => None
     }
 
   override def duplicate: ChannelBuffer = TruncatedChannelBuffer(buffer, length)
 
   override def copy(index: Int, length: Int): ChannelBuffer =
-    buffer.copy(index, length)
+    buffer.copy(index + adjustment, length)
 
   override def indexOf(from: Int, to: Int, value: Byte): Int = ???
 
   override def setByte(index: Int, value: Byte): Unit =
     checkIndex(index) match {
-      case None      => buffer.setByte(index, value)
+      case None      => buffer.setByte(index + adjustment, value)
       case Some(msg) => _
     }
 
   override def setShort(index: Int, value: Short): Unit =
     checkIndex(index, 2) match {
-      case None      => buffer.setShort(index, value)
+      case None      => buffer.setShort(index + adjustment, value)
       case Some(msg) => _
     }
 
   override def setMedium(index: Int, value: Int): Unit =
     checkIndex(index, 3) match {
-      case None      => buffer.setMedium(index, value)
+      case None      => buffer.setMedium(index + adjustment, value)
       case Some(msg) => _
     }
 
   override def setInt(index: Int, value: Int): Unit =
     checkIndex(index, 4) match {
-      case None      => buffer.setInt(index, value)
+      case None      => buffer.setInt(index + adjustment, value)
       case Some(msg) => _
     }
 
   override def setLong(index: Int, value: Long): Unit =
     checkIndex(index, 8) match {
-      case None      => buffer.setLong(index, value)
+      case None      => buffer.setLong(index + adjustment, value)
       case Some(msg) => _
     }
 
@@ -120,7 +120,7 @@ case class TruncatedChannelBuffer(
                         length: Int,
                         src: ChannelBuffer): Unit =
     checkIndex(index, length) match {
-      case None      => buffer.setBytes(index, srcIndex, length, src)
+      case None      => buffer.setBytes(index + adjustment, srcIndex, length, src)
       case Some(msg) => _
     }
 
@@ -129,19 +129,19 @@ case class TruncatedChannelBuffer(
                         length: Int,
                         src: Array[Byte]): Unit =
     checkIndex(index, length) match {
-      case None      => buffer.setBytes(index, srcIndex, length, src)
+      case None      => buffer.setBytes(index + adjustment, srcIndex, length, src)
       case Some(msg) => _
     }
 
   override def setBytes(index: Int, src: ByteBuffer): Unit =
     checkIndex(index, src.remaining()) match {
-      case None      => buffer.setBytes(index, src)
+      case None      => buffer.setBytes(index + adjustment, src)
       case Some(msg) => _
     }
 
   override def toByteBuffer(index: Int, length: Int): ByteBuffer =
     checkIndex(index, length) match {
-      case None      => buffer.toByteBuffer(index, length)
+      case None      => buffer.toByteBuffer(index + adjustment, length)
       case Some(msg) => _
     }
 

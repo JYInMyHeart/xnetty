@@ -1,0 +1,3 @@
+package channel
+
+trait ChannelHandler {}

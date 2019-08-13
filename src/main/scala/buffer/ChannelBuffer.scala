@@ -97,6 +97,8 @@ trait ChannelBuffer extends Comparable[ChannelBuffer] {
   def writeBytes(srcIndex: Int, length: Int, src: Array[Byte]): Unit
   def writeBytes(src: ByteBuffer): Unit
 
+  @Contract(pure = true) def toByteBuffer(index: Int, length: Int): ByteBuffer
+
   @Contract(pure = true) def hashCode(): Int
   @Contract(pure = true) def equals(obj: Any): Boolean
   @Contract(pure = true) def compareTo(o: ChannelBuffer): Int

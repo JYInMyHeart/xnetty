@@ -1,3 +1,3 @@
 package buffer
 
-case class BigEndianHeapChannelBuffer(length: Int) extends HeapChannelBUffer {}
+case class BigEndianHeapChannelBuffer(length: Int) extends HeapChannelBuffer {}
