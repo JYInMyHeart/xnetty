@@ -7,7 +7,10 @@ case class SlicedChannelBuffer(buffer: ChannelBuffer,
     extends AbstractChannelBuffer
     with WrappedChannelBuffer {
 
-  def this(buffer: ChannelBuffer, index: Int, length: Int) {
+  def this(buffer: ChannelBuffer,
+           index: Int,
+           length: Int,
+           flag: Boolean = true) {
     this(buffer, index, length)
     writeIndex(length)
   }
@@ -142,7 +145,7 @@ case class SlicedChannelBuffer(buffer: ChannelBuffer,
   override def toByteBuffer(index: Int, length: Int): ByteBuffer =
     checkIndex(index, length) match {
       case None      => buffer.toByteBuffer(index + adjustment, length)
-      case Some(msg) => println(msg)
+      case Some(msg) => ByteBuffer.allocate(0)
     }
 
   private[this] def checkIndex(index: Int): Option[String] = {

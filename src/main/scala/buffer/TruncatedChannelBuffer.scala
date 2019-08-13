@@ -7,7 +7,7 @@ case class TruncatedChannelBuffer(
 ) extends AbstractChannelBuffer
     with WrappedChannelBuffer {
 
-  def this(buffer: ChannelBuffer, length: Int) {
+  def this(buffer: ChannelBuffer, length: Int, flag: Boolean = true) {
     this(buffer, length)
     writeIndex(length)
   }

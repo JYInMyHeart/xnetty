@@ -33,7 +33,9 @@ object ChannelBuffers {
       arrayIndex += 4
     }
     for (_ <- byteCount until 0 by -1) {
-      hashCode = 31 * hashCode + channelBuffer.getByte(arrayIndex).getOrElse(0)
+      hashCode = 31 * hashCode + channelBuffer
+        .getByte(arrayIndex)
+        .get
       arrayIndex += 1
     }
     if (hashCode == 0) hashCode = 1

@@ -4,7 +4,7 @@ import java.nio.ByteBuffer
 abstract class HeapChannelBuffer(protected val array: Array[Byte])
     extends AbstractChannelBuffer {
   def this(length: Int) = {
-    this(Array.ofDim(length))
+    this(Array.ofDim[Byte](length))
   }
   def this(array: Array[Byte], readerIndex: Int, writerIndex: Int) = {
     this(array)
