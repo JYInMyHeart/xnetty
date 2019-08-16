@@ -10,15 +10,15 @@ abstract class CompleteChannelFuture(channel: Channel) extends ChannelFuture {
 
   override def cancel(): Boolean = false
 
-  override def setSuccess(): Unit = ???
+  override def setSuccess(): Unit = {}
 
-  override def setFailure(cause: Throwable): Unit = ???
+  override def setFailure(cause: Throwable): Unit = {}
 
   override def addListener(listener: ChannelFutureListener): Unit = {
     listener.operationComplete(this)
   }
 
-  override def removeListener(listener: ChannelFutureListener): Unit = ???
+  override def removeListener(listener: ChannelFutureListener): Unit = {}
 
   override def await(): ChannelFuture = this
 

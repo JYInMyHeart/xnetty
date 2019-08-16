@@ -4,11 +4,6 @@ import java.net.SocketAddress
 import java.util.UUID
 
 trait Channel {
-  val OP_NONE: Int = 0
-  val OP_READ: Int = 1
-  val OP_WRITE: Int = 4
-  val OP_READ_WRITE: Int = OP_READ | OP_WRITE
-
   def getId(): UUID
   def getFactory: ChannelFactory
   def getParent: Channel
@@ -33,6 +28,12 @@ trait Channel {
   def getInterestOps: Int
   def isReadable: Boolean
   def isWritable: Boolean
-  def setInterestOps(interestOps: Int): ChannelFuture
+  def setInterestOps(interestOps: Int): Option[ChannelFuture]
   def setReadable(readable: Boolean): ChannelFuture
+}
+object Channel {
+  val OP_NONE: Int = 0
+  val OP_READ: Int = 1
+  val OP_WRITE: Int = 4
+  val OP_READ_WRITE: Int = OP_READ | OP_WRITE
 }
