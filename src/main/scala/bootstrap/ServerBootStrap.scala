@@ -1,6 +1,6 @@
 package bootstrap
 import java.net.SocketAddress
-import java.util.concurrent.{BlockingQueue, TimeUnit}
+import java.util.concurrent.{BlockingQueue, LinkedBlockingQueue, TimeUnit}
 
 import channel.{
   Channel,
@@ -8,18 +8,20 @@ import channel.{
   ChannelFactory,
   ChannelFuture,
   ChannelHandler,
-  ChannelPipelineFactory,
-  Channels
+  ChannelHandlerContext,
+  ChannelStateEvent,
+  Channels,
+  SimpleChannelHandler
 }
 
-import scala.sys.process.processInternal.LinkedBlockingQueue
+import scala.collection.mutable
 
 case class ServerBootStrap(@volatile channelFactory: ChannelFactory)
     extends Bootstrap(channelFactory) {
   @volatile var parentHandler: ChannelHandler = _
 
   def bind(): Channel = {
-    val localAddress = options("localAddress")
+    val localAddress = options("localAddress").asInstanceOf[SocketAddress]
     if (localAddress == null)
       throw new IllegalArgumentException("localAddress option is not set!")
     bind(localAddress)
@@ -29,10 +31,10 @@ case class ServerBootStrap(@volatile channelFactory: ChannelFactory)
     val futureQueue = new LinkedBlockingQueue[ChannelFuture]()
     val _pipeline = Channels.pipeline
     _pipeline.addLast("binder", new Binder(address, futureQueue))
-    val parentHandler = getParentHandler
-    if (parentHandler != null)
-      _pipeline.addLast("userHandler", parentHandler)
-    val channel = getFactory.newChannel(_pipeline)
+    val _parentHandler = parentHandler
+    if (_parentHandler != null)
+      _pipeline.addLast("userHandler", _parentHandler)
+    val channel = channelFactory.newChannel(_pipeline)
     var _future: ChannelFuture = null
     while (_future == null) {
       try {
@@ -44,13 +46,33 @@ case class ServerBootStrap(@volatile channelFactory: ChannelFactory)
     _future.awaitUninterruptibly()
     if (_future.isSuccess) {
       _future.getChannel.close().awaitUninterruptibly()
-      throw new ChannelException(s"Failed to bind to ${address}",
+      throw new ChannelException(s"Failed to bind to $address",
                                  _future.getCause)
     }
     channel
   }
 
   private sealed class Binder(address: SocketAddress,
-                              futures: BlockingQueue[ChannelFuture])
-      extends SimpleChannelHandler() {}
+                              futureQueue: BlockingQueue[ChannelFuture])
+      extends SimpleChannelHandler {
+    private[this] val childOptions: mutable.Map[String, String] =
+      mutable.HashMap()
+
+    override def channelOpen(context: ChannelHandlerContext,
+                             event: ChannelStateEvent): Unit = {
+      event.getChannel.getConfig.setPipelineFactory(channelPipelineFactory)
+
+      val allOptions = getOptions
+      val parentOptions = mutable.HashMap[String, String]()
+      childOptions ++= allOptions
+        .filter { case (k, _) => k.startsWith("child.") }
+        .map { case (k, v) => k.substring(6) -> v }
+      parentOptions ++= allOptions.filter {
+        case (k, _) => !k.startsWith("child.") && k != "pipelineFactory"
+      }
+      event.getChannel.getConfig.setOptions(parentOptions)
+      futureQueue.offer(event.getChannel.bind(address))
+      context.sendUpstream(event)
+    }
+  }
 }

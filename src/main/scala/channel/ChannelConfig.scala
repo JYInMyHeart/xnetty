@@ -1,7 +1,9 @@
 package channel
 
+import scala.collection.mutable
+
 trait ChannelConfig {
-  def setOptions(options: Map[String, Boolean]): Unit
+  def setOptions(options: mutable.Map[String, String]): Unit
   def getPipelineFactory: ChannelPipelineFactory
   def setPipelineFactory(pipelineFactory: ChannelPipelineFactory)
   def getConnectTimeoutMillis: Int
