@@ -26,8 +26,8 @@ case class DefaultChannelPipeline(var channel: Channel,
 
   @volatile private[this] var head: DefaultChannelHandlerContext = _
   @volatile private[this] var tail: DefaultChannelHandlerContext = _
-  private[this] val ctx: mutable.HashMap[String, DefaultChannelHandlerContext] =
-    mutable.HashMap()
+  private[this] val ctx: mutable.Map[String, DefaultChannelHandlerContext] =
+    mutable.LinkedHashMap()
 
   override def getChannel: Channel = channel
 
@@ -306,8 +306,8 @@ case class DefaultChannelPipeline(var channel: Channel,
     None
   }
 
-  override def toMap(): Map[String, ChannelHandler] = {
-    ctx.map { case (_, _ctx) => _ctx.name -> _ctx.handler }.toMap
+  override def toMap(): mutable.Map[String, ChannelHandler] = {
+    ctx.map { case (_, _ctx) => _ctx.name -> _ctx.handler }
   }
 
   sealed case class DefaultChannelHandlerContext(

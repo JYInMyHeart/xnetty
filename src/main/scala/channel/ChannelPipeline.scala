@@ -2,6 +2,8 @@ package channel
 
 import org.jetbrains.annotations.Contract
 
+import scala.collection.mutable
+
 trait ChannelPipeline {
   def addFirst(name: String, handler: ChannelHandler): Unit
   def addLast(name: String, handler: ChannelHandler): Unit
@@ -43,6 +45,6 @@ trait ChannelPipeline {
   def getSink: ChannelSink
   def attach(channel: Channel, sink: ChannelSink)
 
-  def toMap(): Map[String, ChannelHandler]
+  def toMap(): mutable.Map[String, ChannelHandler]
 
 }
