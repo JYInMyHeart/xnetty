@@ -9,19 +9,22 @@ import channel.{
   ChannelFuture,
   ChannelHandler,
   ChannelHandlerContext,
+  ChannelPipelineCoverage,
   ChannelStateEvent,
   Channels,
+  ChildChannelStateEvent,
+  ExceptionEvent,
   SimpleChannelHandler
 }
 
 import scala.collection.mutable
 
-case class ServerBootStrap(@volatile channelFactory: ChannelFactory)
+case class ServerBootStrap(channelFactory: ChannelFactory)
     extends Bootstrap(channelFactory) {
   @volatile var parentHandler: ChannelHandler = _
 
   def bind(): Channel = {
-    val localAddress = options("localAddress").asInstanceOf[SocketAddress]
+    val localAddress = getOption("localAddress").asInstanceOf[SocketAddress]
     if (localAddress == null)
       throw new IllegalArgumentException("localAddress option is not set!")
     bind(localAddress)
@@ -52,6 +55,7 @@ case class ServerBootStrap(@volatile channelFactory: ChannelFactory)
     channel
   }
 
+  @ChannelPipelineCoverage("one")
   private sealed class Binder(address: SocketAddress,
                               futureQueue: BlockingQueue[ChannelFuture])
       extends SimpleChannelHandler {
@@ -74,5 +78,17 @@ case class ServerBootStrap(@volatile channelFactory: ChannelFactory)
       futureQueue.offer(event.getChannel.bind(address))
       context.sendUpstream(event)
     }
+
+    override def childChannelOpen(context: ChannelHandlerContext,
+                                  event: ChildChannelStateEvent): Unit = {
+      event.getChildChannel.getConfig.setOptions(childOptions)
+      context.sendUpstream(event)
+    }
+
+    override def exceptionCaught(_ctx: ChannelHandlerContext,
+                                 e: ExceptionEvent): Unit = {
+      _ctx.sendUpstream(e)
+    }
   }
+
 }

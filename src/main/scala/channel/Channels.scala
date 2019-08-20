@@ -40,7 +40,7 @@ object Channels {
 
   def connect(channel: AbstractChannel,
               remoteAddress: SocketAddress): ChannelFuture = {
-    val _future = future(channel, true)
+    val _future = future(channel, cancellable = true)
     channel.getPipeline.sendDownstream(
       DefaultChannelStateEvent(channel,
                                _future,
@@ -65,7 +65,7 @@ object Channels {
   }
 
   def future(channel: Channel): ChannelFuture = {
-    future(channel, false)
+    future(channel, cancellable = false)
   }
 
   def pipelineFactory(_pipeline: ChannelPipeline): ChannelPipelineFactory =

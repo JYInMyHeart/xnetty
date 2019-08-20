@@ -10,11 +10,12 @@ import channel.{
 
 import scala.collection.mutable
 
-abstract class Bootstrap(@volatile channelFactory: ChannelFactory) {
-  @volatile val channelPipeline: ChannelPipeline = Channels.pipeline
-  @volatile val channelPipelineFactory: ChannelPipelineFactory =
+class Bootstrap(channelFactory: ChannelFactory) {
+  val channelPipeline: ChannelPipeline =
+    Channels.pipeline
+  val channelPipelineFactory: ChannelPipelineFactory =
     Channels.pipelineFactory(channelPipeline)
-  @volatile val options: mutable.Map[String, String] =
+  val options: mutable.Map[String, String] =
     mutable.LinkedHashMap()
 
   def setPipelineAsMap(
@@ -29,6 +30,16 @@ abstract class Bootstrap(@volatile channelFactory: ChannelFactory) {
     channelPipeline.toMap()
   }
 
-  def getOptions: mutable.Map[String, String] =
-    mutable.TreeMap[String, String].apply(options.toList)
+  def getOptions: mutable.Map[String, String] = {
+    val map = mutable.TreeMap[String, String]()
+    map ++= options
+    map
+  }
+
+  def getOption(name: String): Any = {
+    options.get(name) match {
+      case None        => throw new NoSuchElementException
+      case Some(value) => value
+    }
+  }
 }

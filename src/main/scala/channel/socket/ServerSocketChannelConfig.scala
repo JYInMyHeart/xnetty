@@ -1,4 +1,6 @@
-package channel
+package channel.socket
+
+import channel.ChannelConfig
 
 trait ServerSocketChannelConfig extends ChannelConfig {
   def getBacklog: Int
