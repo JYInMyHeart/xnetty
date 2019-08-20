@@ -60,4 +60,30 @@ case class DefaultSocketChannelConfig(socket: Socket)
   override def setKeepAlive(keepAlive: Boolean): Unit =
     socket.setKeepAlive(keepAlive)
 
+  override def setPerformancePreferences(connectionTime: Int,
+                                         latency: Int,
+                                         bandwidth: Int): Unit =
+    socket.setPerformancePreferences(connectionTime, latency, bandwidth)
+
+  override def setReceiveBufferSize(receiveBufferSize: Int): Unit =
+    socket.setReceiveBufferSize(receiveBufferSize)
+
+  override def setReuseAddress(reuseAddress: Boolean): Unit =
+    socket.setReuseAddress(reuseAddress)
+
+  override def setSendBufferSize(sendBufferSize: Int): Unit =
+    socket.setSendBufferSize(sendBufferSize)
+
+  override def setSoLinger(soLinger: Int): Unit =
+    if (soLinger < 0)
+      socket.setSoLinger(false, 0)
+    else
+      socket.setSoLinger(true, soLinger)
+
+  override def setTcpNoDelay(tcpNoDelay: Boolean): Unit =
+    socket.setTcpNoDelay(tcpNoDelay)
+
+  override def setTrafficCLass(trafficClass: Int): Unit =
+    socket.setTrafficClass(trafficClass)
+
 }

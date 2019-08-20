@@ -15,4 +15,7 @@ trait SocketChannelConfig {
   def setTrafficCLass(trafficClass: Int): Unit
   def isReuseAddress: Boolean
   def setReuseAddress(reuseAddress: Boolean): Unit
+  def setPerformancePreferences(connectionTime: Int,
+                                latency: Int,
+                                bandwidth: Int): Unit
 }
