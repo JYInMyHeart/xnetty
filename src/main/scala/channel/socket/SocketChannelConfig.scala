@@ -1,6 +1,8 @@
 package channel.socket
 
-trait SocketChannelConfig {
+import channel.ChannelConfig
+
+trait SocketChannelConfig extends ChannelConfig {
   def isTcpNoDelay: Boolean
   def setTcpNoDelay(tcpNoDelay: Boolean): Unit
   def getSoLinger: Int

@@ -5,7 +5,7 @@ import java.nio.channels.{ClosedChannelException, SelectionKey, Selector}
 import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicBoolean
 
-import channel.{ChannelException, ChannelFuture}
+import channel.{ChannelException, ChannelFuture, Channels}
 
 case class NioWorker(bossId: Int,
                      id: Int,
@@ -51,11 +51,11 @@ case class NioWorker(bossId: Int,
 
       val server = !channel.isInstanceOf[NioClientSocketChannel]
       if (server) {
-        fireChannelOpen(channel)
+        Channels.fireChannelOpen(channel)
       }
 
-      firChannelBound(channel, channel.getLocalAddress)
-      fireChannelConnected(channel, channel.getRemoteAddress)
+      Channels.firChannelBound(channel, channel.getLocalAddress)
+      Channels.fireChannelConnected(channel, channel.getRemoteAddress)
 
       val threadName = (if (server) "New I/O server worker #"
                         else "New I/O client worker #") + bossId + '-' + id
@@ -82,6 +82,64 @@ case class NioWorker(bossId: Int,
       } catch {
         case e: Exception =>
           println("Failed to set the current thread name.", e)
+      }
+    }
+  }
+
+  override def run(): Unit = {
+    thread = Thread.currentThread()
+    var shutdown = false
+    val _selector = selector
+    while (true) {
+      this.synchronized {}
+      try {
+        val selectedKeyCount = _selector.select(500)
+        if (selectedKeyCount > 0)
+          NioWorker.processSelectedKeys(_selector.selectedKeys())
+
+        if (_selector.keys().isEmpty) {
+          if (shutdown) {
+            this.synchronized {
+              if (_selector.keys().isEmpty) {
+                try {
+                  _selector.close()
+                } catch {
+                  case e: IOException =>
+                    println(s"Failed to close a selector. $e")
+                } finally {
+                  this.selector = null
+                }
+              } else {
+                shutdown = true
+              }
+            }
+          } else {
+            shutdown = true
+          }
+        } else {
+          shutdown = false
+        }
+      } catch {
+        case t: Throwable =>
+          println(s"Unexpected exception in the selector loop $t")
+          try {
+            Thread.sleep(1000)
+          } catch {
+            case _: InterruptedException =>
+          }
+      }
+    }
+  }
+}
+
+object NioWorker {
+  import scala.collection.JavaConverters._
+  def processSelectedKeys(selectedKeys: java.util.Set[SelectionKey]): Unit = {
+    val iterator = selectedKeys.iterator()
+    for (key <- iterator.asScala) {
+      iterator.remove()
+      key match {
+        case x if
       }
     }
   }

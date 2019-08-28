@@ -59,7 +59,7 @@ case class ServerBootStrap(channelFactory: ChannelFactory)
   private sealed class Binder(address: SocketAddress,
                               futureQueue: BlockingQueue[ChannelFuture])
       extends SimpleChannelHandler {
-    private[this] val childOptions: mutable.Map[String, String] =
+    private[this] val childOptions: mutable.Map[String, Any] =
       mutable.HashMap()
 
     override def channelOpen(context: ChannelHandlerContext,
@@ -67,7 +67,7 @@ case class ServerBootStrap(channelFactory: ChannelFactory)
       event.getChannel.getConfig.setPipelineFactory(channelPipelineFactory)
 
       val allOptions = getOptions
-      val parentOptions = mutable.HashMap[String, String]()
+      val parentOptions = mutable.HashMap[String, Any]()
       childOptions ++= allOptions
         .filter { case (k, _) => k.startsWith("child.") }
         .map { case (k, v) => k.substring(6) -> v }

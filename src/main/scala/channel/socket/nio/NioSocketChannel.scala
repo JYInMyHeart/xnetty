@@ -16,16 +16,17 @@ import channel.{
 import scala.collection.mutable
 
 abstract class NioSocketChannel(val socketChannel: SocketChannel,
-                                val config: NioSocketChannelConfig,
-                                val parent: Channel,
-                                val factory: ChannelFactory,
-                                val pipeline: ChannelPipeline,
-                                val sink: ChannelSink)
+                                parent: Channel,
+                                factory: ChannelFactory,
+                                pipeline: ChannelPipeline,
+                                sink: ChannelSink)
     extends AbstractChannel(parent, factory, pipeline, sink)
     with channel.socket.SocketChannel {
   val writeBuffer: mutable.Queue[MessageEvent] = mutable.Queue[MessageEvent]()
   var currentWriteEvent: MessageEvent = _
   var currentWriteIndex: Int = _
+  lazy val config: NioSocketChannelConfig = DefaultNioSocketChannelConfig(
+    socketChannel.socket())
 
   def getWorker: NioWorker
   def setWorker(worker: NioWorker): Unit
@@ -50,4 +51,7 @@ abstract class NioSocketChannel(val socketChannel: SocketChannel,
     else
       getUnsupportedOperationFuture
   }
+
+  override def getConfig: NioSocketChannelConfig = config
+
 }

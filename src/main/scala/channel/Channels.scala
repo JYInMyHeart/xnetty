@@ -1,8 +1,35 @@
 package channel
 
-import java.net.SocketAddress
+import java.net.{InetSocketAddress, SocketAddress}
+
+import channel.socket.nio.NioSocketChannel
 
 object Channels {
+  def fireChannelConnected(channel: NioSocketChannel,
+                           remoteAddress: InetSocketAddress): Unit = {
+    channel.getPipeline.sendUpstream(
+      DefaultChannelStateEvent(channel,
+                               succeededFuture(channel),
+                               ChannelState.BOUND,
+                               remoteAddress))
+  }
+
+  def firChannelBound(channel: NioSocketChannel,
+                      localAddress: InetSocketAddress): Unit = {
+    channel.getPipeline.sendUpstream(
+      DefaultChannelStateEvent(channel,
+                               succeededFuture(channel),
+                               ChannelState.CONNECTED,
+                               localAddress))
+  }
+
+  def close(channel: Channel): ChannelFuture = {
+    val _future = future(channel)
+    channel.getPipeline.sendDownstream(
+      DefaultChannelStateEvent(channel, _future, ChannelState.OPEN, false))
+    _future
+  }
+
   def write(channel: Channel,
             message: String,
             remoteAddress: SocketAddress): ChannelFuture = {
@@ -92,4 +119,29 @@ object Channels {
   def validateDownstreamInterestOps(channel: Channel,
                                     interestOps: Int): Boolean =
     ((channel.getInterestOps ^ interestOps) & Channel.OP_WRITE) == 0
+
+  def fireChildChannelStateChanged(parent: Channel, channel: Channel): Unit = {
+    parent.getPipeline.sendUpstream(
+      DefaultChildChannelStateEvent(parent, succeededFuture(parent), channel))
+  }
+
+  def fireChannelOpen(channel: Channel): Unit = {
+    if (channel.getParent != null) {
+      fireChildChannelStateChanged(channel.getParent, channel)
+    }
+    channel.getPipeline.sendUpstream(
+      DefaultChannelStateEvent(channel,
+                               succeededFuture(channel),
+                               ChannelState.OPEN,
+                               true))
+  }
+
+  def succeededFuture(channel: Channel): ChannelFuture = {
+    channel match {
+      case c: AbstractChannel =>
+        c.succeededFuture
+      case _ =>
+        SucceededChannelFuture(channel)
+    }
+  }
 }

@@ -30,8 +30,8 @@ class Bootstrap(channelFactory: ChannelFactory) {
     channelPipeline.toMap()
   }
 
-  def getOptions: mutable.Map[String, String] = {
-    val map = mutable.TreeMap[String, String]()
+  def getOptions: mutable.Map[String, Any] = {
+    val map = mutable.TreeMap[String, Any]()
     map ++= options
     map
   }

@@ -6,8 +6,7 @@ import channel.ChannelPipelineFactory
 
 import scala.collection.mutable
 
-case class DefaultSocketChannelConfig(socket: Socket)
-    extends SocketChannelConfig {
+class DefaultSocketChannelConfig(socket: Socket) extends SocketChannelConfig {
   @volatile var connectTimeoutMillis: Int = 10000
 
   def setPipelineFactory(f: ChannelPipelineFactory): Unit = {}
@@ -86,4 +85,16 @@ case class DefaultSocketChannelConfig(socket: Socket)
   override def setTrafficCLass(trafficClass: Int): Unit =
     socket.setTrafficClass(trafficClass)
 
+  override def getPipelineFactory: ChannelPipelineFactory = null
+
+  override def getConnectTimeoutMillis: Int = connectTimeoutMillis
+
+  override def setConnectTimeoutMillis(connectTimeoutMillis: Int): Unit = {
+    if (connectTimeoutMillis < 0)
+      throw new IllegalArgumentException(
+        s"connectTimeoutMillis: $connectTimeoutMillis")
+    this.connectTimeoutMillis = connectTimeoutMillis
+  }
+
+  override def getWriteTimeoutMillis: Int = 0
 }

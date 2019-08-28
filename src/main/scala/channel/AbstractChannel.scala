@@ -90,6 +90,8 @@ abstract class AbstractChannel(parent: Channel,
                      remoteAddress: SocketAddress): ChannelFuture =
     Channels.write(this, message, remoteAddress)
 
+  override def close(): ChannelFuture = Channels.close(this)
+
   override def toString: String = {
     if (strVal != null)
       return strVal

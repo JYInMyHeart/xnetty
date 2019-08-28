@@ -6,9 +6,9 @@ trait NioSocketChannelConfig extends SocketChannelConfig {
   def getWriteSpinCount: Int
   def setWriteSpinCount(writeSpinCount: Int): Unit
 
-  override def getReceiveBufferSize: ReceiveBufferSizePredictor
+  def getReceiveBufferSizePredictor: ReceiveBufferSizePredictor
 
-  override def setReceiveBufferSize(
+  def setReceiveBufferSizePredictor(
       receiveBufferSize: ReceiveBufferSizePredictor): Unit
 
   def isReadWriteFair: Boolean
