@@ -124,4 +124,39 @@ object ChannelBuffers {
   private def compareOptionByte(o1: Option[Byte],
                                 o2: Option[Byte]): Option[Int] =
     for (v1 <- o1; v2 <- o2) yield if (v1 > v2) 1 else if (v1 < v2) -1 else 0
+
+  def wrappedBuffer(array: Array[Byte],
+                    offset: Int,
+                    length: Int): ChannelBuffer = {
+    wrappedBuffer(BIG_ENDIAN, array, offset, length)
+  }
+
+  def wrappedBuffer(array: Array[Byte]): ChannelBuffer = {
+    wrappedBuffer(array, 0, array.length)
+  }
+
+  def wrappedBuffer(endianness: ByteOrder,
+                    array: Array[Byte],
+                    offset: Int,
+                    length: Int): ChannelBuffer = {
+    if (length == 0) return ChannelBuffer.EMPTY_BUFFER
+    if (offset == 0) {
+      if (length == array.length)
+        wrappedBuffer(endianness, array)
+      else
+        TruncatedChannelBuffer(wrappedBuffer(endianness, array), length)
+    } else
+      SlicedChannelBuffer(wrappedBuffer(endianness, array), offset, length)
+  }
+
+  def wrappedBuffer(endianness: ByteOrder,
+                    array: Array[Byte]): ChannelBuffer = {
+    if (array.length == 0) return ChannelBuffer.EMPTY_BUFFER
+    if (endianness == BIG_ENDIAN)
+      new BigEndianHeapChannelBuffer(array)
+    else if (endianness == LITTLE_ENDIAN)
+      new LittleEndianHeapChannelBuffer(array)
+    else
+      throw new NullPointerException("endianness")
+  }
 }

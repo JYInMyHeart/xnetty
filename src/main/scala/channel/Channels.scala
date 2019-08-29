@@ -2,9 +2,59 @@ package channel
 
 import java.net.{InetSocketAddress, SocketAddress}
 
+import buffer.ChannelBuffer
 import channel.socket.nio.NioSocketChannel
 
 object Channels {
+  def fireMessageReceived(channel: Channel, message: Any) = {
+    fireMessageReceived(channel, message, null)
+  }
+
+  def fireMessageReceived(channel: Channel,
+                          message: Any,
+                          remoteAddress: SocketAddress) = {
+    channel.getPipeline.sendUpstream(
+      DefaultMessageEvent(channel,
+                          succeededFuture(channel),
+                          message,
+                          remoteAddress))
+  }
+
+  def fireChannelInterestChanged(channel: NioSocketChannel,
+                                 interestOps: Int): Unit = {
+    channel.getPipeline.sendUpstream(
+      DefaultChannelStateEvent(channel,
+                               succeededFuture(channel),
+                               ChannelState.INTEREST_OPS,
+                               interestOps))
+  }
+
+  def fireExceptionCaught(channel: Channel, t: Throwable): Unit =
+    channel.getPipeline.sendUpstream(
+      DefaultExceptionEvent(channel, succeededFuture(channel), t))
+
+  def fireChannelClosed(channel: Channel): Unit =
+    channel.getPipeline.sendUpstream(
+      DefaultChannelStateEvent(channel,
+                               succeededFuture(channel),
+                               ChannelState.OPEN,
+                               false))
+
+  def fireChannelUnbound(channel: Channel): Unit =
+    channel.getPipeline.sendUpstream(
+      DefaultChannelStateEvent(channel,
+                               succeededFuture(channel),
+                               ChannelState.BOUND,
+                               null))
+
+  def fireChannelDisconnected(channel: Channel): Unit = {
+    channel.getPipeline.sendUpstream(
+      DefaultChannelStateEvent(channel,
+                               succeededFuture(channel),
+                               ChannelState.CONNECTED,
+                               null))
+  }
+
   def fireChannelConnected(channel: NioSocketChannel,
                            remoteAddress: InetSocketAddress): Unit = {
     channel.getPipeline.sendUpstream(

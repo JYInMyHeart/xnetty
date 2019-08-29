@@ -1,8 +1,13 @@
 package buffer
+import java.nio.channels.GatheringByteChannel
 import java.nio.{ByteBuffer, ByteOrder}
 
 case class LittleEndianHeapChannelBuffer(length: Int)
-    extends AbstractChannelBuffer {
+    extends HeapChannelBuffer(length) {
+
+  def this(array: Array[Byte]) {
+    this(array.length)
+  }
   override def capacity: Int = ???
 
   override def order: ByteOrder = ???
@@ -60,4 +65,8 @@ case class LittleEndianHeapChannelBuffer(length: Int)
   override def setBytes(index: Int, src: ByteBuffer): Unit = ???
 
   override def toByteBuffer(index: Int, length: Int): ByteBuffer = ???
+
+  override def getBytes(index: Int,
+                        out: GatheringByteChannel,
+                        length: Int): Int = ???
 }

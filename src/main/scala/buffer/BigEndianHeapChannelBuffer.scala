@@ -3,6 +3,10 @@ import java.nio.ByteOrder
 
 case class BigEndianHeapChannelBuffer(length: Int)
     extends HeapChannelBuffer(length) {
+
+  def this(array: Array[Byte]) {
+    this(array.length)
+  }
   override def order: ByteOrder = ???
 
   override def getShort(index: Int): Option[Short] = ???

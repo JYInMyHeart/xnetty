@@ -2,6 +2,8 @@ package channel.socket.nio
 
 import java.net.{InetSocketAddress, SocketAddress}
 import java.nio.channels.SocketChannel
+import java.util
+import java.util.concurrent.ConcurrentLinkedQueue
 
 import channel.{
   AbstractChannel,
@@ -13,8 +15,6 @@ import channel.{
   MessageEvent
 }
 
-import scala.collection.mutable
-
 abstract class NioSocketChannel(val socketChannel: SocketChannel,
                                 parent: Channel,
                                 factory: ChannelFactory,
@@ -22,7 +22,8 @@ abstract class NioSocketChannel(val socketChannel: SocketChannel,
                                 sink: ChannelSink)
     extends AbstractChannel(parent, factory, pipeline, sink)
     with channel.socket.SocketChannel {
-  val writeBuffer: mutable.Queue[MessageEvent] = mutable.Queue[MessageEvent]()
+  val writeBuffer: util.Queue[MessageEvent] =
+    new ConcurrentLinkedQueue[MessageEvent]()
   var currentWriteEvent: MessageEvent = _
   var currentWriteIndex: Int = _
   lazy val config: NioSocketChannelConfig = DefaultNioSocketChannelConfig(
@@ -53,5 +54,7 @@ abstract class NioSocketChannel(val socketChannel: SocketChannel,
   }
 
   override def getConfig: NioSocketChannelConfig = config
+
+  override def setClosed(): Boolean = super.setClosed()
 
 }

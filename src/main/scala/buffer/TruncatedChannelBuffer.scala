@@ -1,4 +1,5 @@
 package buffer
+import java.nio.channels.GatheringByteChannel
 import java.nio.{ByteBuffer, ByteOrder}
 
 case class TruncatedChannelBuffer(
@@ -71,6 +72,15 @@ case class TruncatedChannelBuffer(
       case None      => buffer.getBytes(index, dst)
       case Some(msg) => println(msg)
     }
+
+  override def getBytes(index: Int,
+                        out: GatheringByteChannel,
+                        length: Int): Int = {
+    checkIndex(index, length) match {
+      case None    => buffer.getBytes(index, out, length)
+      case Some(_) => -1
+    }
+  }
 
   override def slice(index: Int, length: Int): Option[ChannelBuffer] =
     checkIndex(index, 8) match {

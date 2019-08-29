@@ -1,5 +1,6 @@
 package buffer
 
+import java.nio.channels.GatheringByteChannel
 import java.nio.{ByteBuffer, ByteOrder}
 
 import org.jetbrains.annotations.Contract
@@ -56,6 +57,8 @@ trait ChannelBuffer extends Comparable[ChannelBuffer] {
   def getBytes(index: Int, dstIndex: Int, length: Int, dst: Array[Byte]): Unit
   //noinspection AccessorLikeMethodIsUnit
   def getBytes(index: Int, dst: ByteBuffer): Unit
+
+  def getBytes(index: Int, out: GatheringByteChannel, length: Int): Int
 
   def readByte(): Option[Byte]
   def readShort(): Option[Short]

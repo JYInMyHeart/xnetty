@@ -1,5 +1,6 @@
 package buffer
 import java.nio.ByteBuffer
+import java.nio.channels.GatheringByteChannel
 
 abstract class HeapChannelBuffer(protected val array: Array[Byte])
     extends AbstractChannelBuffer {
@@ -35,6 +36,9 @@ abstract class HeapChannelBuffer(protected val array: Array[Byte])
 
   override def getBytes(index: Int, dst: ByteBuffer): Unit =
     dst.put(array, index, math.min(capacity - index, dst.remaining()))
+
+  def getBytes(index: Int, out: GatheringByteChannel, length: Int): Int =
+    out.write(ByteBuffer.wrap(array, index, length))
 
   override def setByte(index: Int, value: Byte): Unit =
     array(index) = value
