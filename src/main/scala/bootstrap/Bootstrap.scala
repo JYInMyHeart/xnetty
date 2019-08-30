@@ -15,7 +15,7 @@ class Bootstrap(channelFactory: ChannelFactory) {
     Channels.pipeline
   val channelPipelineFactory: ChannelPipelineFactory =
     Channels.pipelineFactory(channelPipeline)
-  val options: mutable.Map[String, String] =
+  val options: mutable.Map[String, Any] =
     mutable.LinkedHashMap()
 
   def setPipelineAsMap(
@@ -40,6 +40,13 @@ class Bootstrap(channelFactory: ChannelFactory) {
     options.get(name) match {
       case None        => throw new NoSuchElementException
       case Some(value) => value
+    }
+  }
+
+  def setOption(key: String, value: Any): Unit = {
+    value match {
+      case null => options -= key
+      case _    => options += (key -> value)
     }
   }
 }

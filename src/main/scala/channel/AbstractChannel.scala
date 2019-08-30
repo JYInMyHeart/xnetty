@@ -83,10 +83,10 @@ abstract class AbstractChannel(parent: Channel,
       }
     }
 
-  override def write(message: => String): ChannelFuture =
+  override def write(message: => Any): ChannelFuture =
     Channels.write(this, message)
 
-  override def write(message: => String,
+  override def write(message: => Any,
                      remoteAddress: SocketAddress): ChannelFuture =
     Channels.write(this, message, remoteAddress)
 

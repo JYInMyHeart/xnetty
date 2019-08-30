@@ -45,7 +45,7 @@ abstract class NioSocketChannel(val socketChannel: SocketChannel,
 
   override def isConnected: Boolean = socketChannel.socket().isConnected
 
-  override def write(message: => String,
+  override def write(message: => Any,
                      remoteAddress: SocketAddress): ChannelFuture = {
     if (remoteAddress == null || remoteAddress == getRemoteAddress)
       super.write(message, null)

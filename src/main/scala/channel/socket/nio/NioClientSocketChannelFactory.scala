@@ -11,14 +11,16 @@ case class NioClientSocketChannelFactory(bossExecutor: Executor,
                                          sink: ChannelSink)
     extends ClientSocketChannelFactory() {
   def this(bossExecutor: Executor, workerExecutor: Executor) {
-    this(bossExecutor,
-         workerExecutor,
-         Runtime.getRuntime.availableProcessors(),
-         new NioClientSocketPipelineSink(bossExecutor,
-                                         workerExecutor,
-                                         workerCount))
+    this(
+      bossExecutor,
+      workerExecutor,
+      Runtime.getRuntime.availableProcessors(),
+      new NioClientSocketPipelineSink(bossExecutor,
+                                      workerExecutor,
+                                      Runtime.getRuntime.availableProcessors())
+    )
   }
 
   override def newChannel(pipeline: ChannelPipeline): SocketChannel =
-    NioClientSocketChannel(this, pipeline, sink)
+    new NioClientSocketChannel(this, pipeline, sink)
 }

@@ -3,16 +3,25 @@ package channel
 import java.net.{InetSocketAddress, SocketAddress}
 
 import buffer.ChannelBuffer
-import channel.socket.nio.NioSocketChannel
+import channel.socket.nio.{NioClientSocketChannel, NioSocketChannel}
 
 object Channels {
-  def fireMessageReceived(channel: Channel, message: Any) = {
+  def fireChannelBound(channel: NioClientSocketChannel,
+                       localAddress: InetSocketAddress): Unit = {
+    channel.getPipeline.sendUpstream(
+      DefaultChannelStateEvent(channel,
+                               succeededFuture(channel),
+                               ChannelState.BOUND,
+                               localAddress))
+  }
+
+  def fireMessageReceived(channel: Channel, message: Any): Unit = {
     fireMessageReceived(channel, message, null)
   }
 
   def fireMessageReceived(channel: Channel,
                           message: Any,
-                          remoteAddress: SocketAddress) = {
+                          remoteAddress: SocketAddress): Unit = {
     channel.getPipeline.sendUpstream(
       DefaultMessageEvent(channel,
                           succeededFuture(channel),
@@ -81,7 +90,7 @@ object Channels {
   }
 
   def write(channel: Channel,
-            message: String,
+            message: Any,
             remoteAddress: SocketAddress): ChannelFuture = {
     val _future = future(channel)
     channel.getPipeline.sendDownstream(
@@ -89,7 +98,7 @@ object Channels {
     _future
   }
 
-  def write(channel: Channel, message: String): ChannelFuture =
+  def write(channel: Channel, message: => Any): ChannelFuture =
     write(channel, message, null)
 
   def setInterestOps(channel: Channel,

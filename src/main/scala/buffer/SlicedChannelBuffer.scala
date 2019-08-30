@@ -1,4 +1,5 @@
 package buffer
+import java.nio.channels.GatheringByteChannel
 import java.nio.{ByteBuffer, ByteOrder}
 
 case class SlicedChannelBuffer(buffer: ChannelBuffer,
@@ -162,4 +163,7 @@ case class SlicedChannelBuffer(buffer: ChannelBuffer,
     None
   }
 
+  override def getBytes(index: Int,
+                        out: GatheringByteChannel,
+                        length: Int): Int = 0
 }

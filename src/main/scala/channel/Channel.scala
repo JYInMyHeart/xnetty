@@ -17,8 +17,8 @@ trait Channel {
   def getLocalAddress: SocketAddress
   def getRemoteAddress: SocketAddress
 
-  def write(message: => String): ChannelFuture
-  def write(message: => String, remoteAddress: SocketAddress): ChannelFuture
+  def write(message: => Any): ChannelFuture
+  def write(message: => Any, remoteAddress: SocketAddress): ChannelFuture
 
   def bind(localAddress: SocketAddress): ChannelFuture
   def connect(remoteAddress: SocketAddress): ChannelFuture
